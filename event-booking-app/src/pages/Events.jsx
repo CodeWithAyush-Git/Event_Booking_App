@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { getReviewsForEvent, addReview, getAverageRating } from "../data/reviews";
 
 const Events = ({ events, addBooking, currentUser }) => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -21,6 +22,27 @@ const Events = ({ events, addBooking, currentUser }) => {
       return;
     }
     addBooking(event);
+  };
+
+  // reviews state mapped by event id for quick lookup
+  const [reviewsMap, setReviewsMap] = useState({});
+
+  useEffect(() => {
+    const map = {};
+    events.forEach(ev => {
+      map[ev.id] = getReviewsForEvent(ev.id);
+    });
+    setReviewsMap(map);
+  }, [events]);
+
+  const handleAddReview = (eventId, rating, comment) => {
+    if (!currentUser) {
+      navigate("/login");
+      return;
+    }
+    const rev = addReview({ eventId, userId: currentUser.id, userName: currentUser.name, rating, comment });
+    setReviewsMap(prev => ({ ...prev, [eventId]: [rev, ...(prev[eventId] || [])] }));
+    alert("Thanks for your review!");
   };
 
   return (
@@ -126,6 +148,12 @@ const Events = ({ events, addBooking, currentUser }) => {
                     {event.title}
                   </h2>
 
+                  {/* Rating */}
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="text-yellow-500 font-bold">★ {getAverageRating(event.id) || 0}</div>
+                    <div className="text-sm text-gray-500">({(reviewsMap[event.id] || []).length} reviews)</div>
+                  </div>
+
                   {/* Event Details */}
                   <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400 mb-4">
                     {event.date && (
@@ -159,6 +187,45 @@ const Events = ({ events, addBooking, currentUser }) => {
                   >
                     {currentUser ? "Book Now" : "Login to Book"}
                   </button>
+
+                  {/* Reviews list + form */}
+                  <div className="mt-4">
+                    <details className="text-sm">
+                      <summary className="cursor-pointer text-purple-600">See reviews</summary>
+                      <div className="mt-3 space-y-3">
+                        {(reviewsMap[event.id] || []).map(r => (
+                          <div key={r.id} className="border rounded p-2 bg-gray-50 dark:bg-gray-700">
+                            <div className="font-semibold">{r.userName} <span className="text-yellow-500">★{r.rating}</span></div>
+                            <div className="text-sm text-gray-600 dark:text-gray-300">{r.comment}</div>
+                          </div>
+                        ))}
+
+                        <div className="mt-2">
+                          <label className="block text-sm mb-1">Your rating</label>
+                          <select id={`rating-${event.id}`} className="w-full mb-2 p-2 rounded border">
+                            <option value="5">5</option>
+                            <option value="4">4</option>
+                            <option value="3">3</option>
+                            <option value="2">2</option>
+                            <option value="1">1</option>
+                          </select>
+                          <textarea id={`comment-${event.id}`} placeholder="Write a quick review" className="w-full p-2 rounded border mb-2"></textarea>
+                          <button
+                            onClick={() => {
+                              const rating = document.getElementById(`rating-${event.id}`).value;
+                              const comment = document.getElementById(`comment-${event.id}`).value;
+                              if (!comment) return alert("Please write a comment");
+                              handleAddReview(event.id, rating, comment);
+                              document.getElementById(`comment-${event.id}`).value = "";
+                            }}
+                            className="bg-indigo-600 text-white px-3 py-1 rounded"
+                          >
+                            Submit Review
+                          </button>
+                        </div>
+                      </div>
+                    </details>
+                  </div>
                 </div>
               </div>
             ))}

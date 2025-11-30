@@ -11,6 +11,7 @@ import Login from "./pages/Login";
 import ThankYou from "./pages/ThankYou";
 import Footer from "./components/Footer";
 import { events } from "./data/events";
+import { sendEmail } from "./utils/email";
 import "./index.css";
 import "./App.css";
 
@@ -38,6 +39,14 @@ function App() {
 
     setUserBookings([...userBookings, newBooking]);
     alert(`✅ Successfully booked ${event.title}!`);
+    // send confirmation email (stub)
+    if (currentUser && currentUser.email) {
+      sendEmail(
+        currentUser.email,
+        `Booking Confirmed: ${event.title}`,
+        `Hi ${currentUser.name},\n\nYour booking for ${event.title} on ${event.date} is confirmed. Booking ID: ${newBooking.id}`
+      ).catch((e) => console.error("Email send failed", e));
+    }
   };
 
   const cancelBooking = (bookingId) => {

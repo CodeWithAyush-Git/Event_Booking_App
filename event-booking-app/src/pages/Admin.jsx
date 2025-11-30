@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { events as initialEvents } from "../data/events";
 import { users as initialUsers } from "../data/users";
 import { bookings as initialBookings } from "../data/bookings";
+import { getAllReviews, deleteReview, getAverageRating } from "../data/reviews";
 
 const Admin = ({ currentUser }) => {
   if (!currentUser?.role || currentUser.role !== "admin") {
@@ -15,6 +16,7 @@ const Admin = ({ currentUser }) => {
   const [eventList, setEventList] = useState(initialEvents);
   const [bookingList] = useState(initialBookings);
   const [userList] = useState(initialUsers);
+  const [reviewsList, setReviewsList] = useState(getAllReviews());
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editEvent, setEditEvent] = useState({});
@@ -36,6 +38,12 @@ const Admin = ({ currentUser }) => {
   };
 
   const deleteEvent = (id) => setEventList(eventList.filter(ev => ev.id !== id));
+
+  const handleDeleteReview = (id) => {
+    if (!window.confirm("Delete this review?")) return;
+    deleteReview(id);
+    setReviewsList(getAllReviews());
+  };
 
   return (
     <div className="min-h-screen p-6 bg-gradient-to-r from-purple-50 via-pink-50 to-yellow-50 dark:from-gray-800 dark:via-gray-900 dark:to-gray-700 transition">
@@ -82,6 +90,49 @@ const Admin = ({ currentUser }) => {
             ))}
           </tbody>
         </table>
+      </div>
+
+      {/* Reviews & Ratings */}
+      <div className="mt-12 mb-12">
+        <h2 className="text-2xl font-semibold text-purple-600 dark:text-purple-400 mb-4">Reviews & Ratings</h2>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="bg-white dark:bg-gray-900 rounded-xl shadow p-6">
+            <h3 className="font-semibold mb-3">Average Rating Per Event</h3>
+            <ul className="space-y-2">
+              {eventList.map(ev => (
+                <li key={ev.id} className="flex justify-between items-center">
+                  <span>{ev.title}</span>
+                  <span className="font-bold text-yellow-500">★ {getAverageRating(ev.id) || 0}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="bg-white dark:bg-gray-900 rounded-xl shadow p-6">
+            <h3 className="font-semibold mb-3">Recent Reviews</h3>
+            <div className="space-y-3 max-h-64 overflow-auto">
+              {reviewsList.length === 0 ? (
+                <p className="text-gray-500">No reviews yet.</p>
+              ) : (
+                reviewsList.map(r => (
+                  <div key={r.id} className="border rounded p-3 bg-gray-50 dark:bg-gray-800">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <div className="font-semibold">{r.userName} <span className="text-yellow-500">★{r.rating}</span></div>
+                        <div className="text-sm text-gray-600 dark:text-gray-400">{r.comment}</div>
+                        <div className="text-xs text-gray-400 mt-1">Event ID: {r.eventId} • Review ID: {r.id}</div>
+                      </div>
+                      <div>
+                        <button onClick={() => handleDeleteReview(r.id)} className="text-red-500">Delete</button>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Bookings */}
