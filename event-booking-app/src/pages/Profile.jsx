@@ -212,7 +212,7 @@ const Profile = ({ currentUser, setCurrentUser }) => {
                   </div>
 
                   {/* Buttons */}
-                  <div className="flex gap-4 pt-4">
+                  <div className="flex flex-col md:flex-row gap-4 pt-4">
                     <button
                       onClick={handleSaveProfile}
                       className="flex-1 px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-semibold flex items-center justify-center gap-2 transition"

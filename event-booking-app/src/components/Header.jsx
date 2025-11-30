@@ -1,7 +1,9 @@
 import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useState } from "react";
 import DarkModeToggle from "./DarkModeToggle";
 
 const Header = ({ currentUser, setCurrentUser }) => {
+  const [open, setOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -21,8 +23,8 @@ const Header = ({ currentUser, setCurrentUser }) => {
         >
           EventBooking
         </Link>
-
-        <nav className="flex gap-4 md:gap-6 items-center">
+        {/* Desktop nav */}
+        <nav className="hidden md:flex gap-4 md:gap-6 items-center">
           {["/", "/events", "/my-bookings", "/profile", "/admin", "/contact", "/about"].map((path) => {
             if (path === "/admin" && currentUser?.role !== "admin") return null;
             if (path === "/profile" && !currentUser) return null;
@@ -73,7 +75,68 @@ const Header = ({ currentUser, setCurrentUser }) => {
           {/* Dark Mode Toggle */}
           <DarkModeToggle />
         </nav>
+
+        {/* Mobile menu button */}
+        <div className="md:hidden flex items-center gap-2">
+          <DarkModeToggle />
+          <button
+            onClick={() => setOpen((v) => !v)}
+            aria-label="Toggle menu"
+            className="p-2 rounded-md bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              {open ? (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              ) : (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              )}
+            </svg>
+          </button>
+        </div>
       </div>
+
+      {/* Mobile Drawer */}
+      {open && (
+        <div className="md:hidden fixed inset-0 z-50 bg-black/40" onClick={() => setOpen(false)}>
+          <div className="absolute right-0 top-0 w-64 h-full bg-white dark:bg-gray-800 shadow-xl p-6" onClick={(e) => e.stopPropagation()}>
+            <div className="flex justify-between items-center mb-6">
+              <Link to="/" className="text-xl font-bold text-purple-600 dark:text-purple-400">EventBooking</Link>
+              <button onClick={() => setOpen(false)} className="text-gray-600 dark:text-gray-200">Close</button>
+            </div>
+            <nav className="flex flex-col gap-3">
+              {["/", "/events", "/my-bookings", "/profile", "/admin", "/contact", "/about"].map((path) => {
+                if (path === "/admin" && currentUser?.role !== "admin") return null;
+                if (path === "/profile" && !currentUser) return null;
+                const label =
+                  path === "/" ? "Home" :
+                  path === "/events" ? "Events" :
+                  path === "/my-bookings" ? "My Bookings" :
+                  path === "/profile" ? "Profile" :
+                  path === "/admin" ? "Admin" :
+                  path === "/contact" ? "Contact" :
+                  "About";
+
+                return (
+                  <Link key={path} to={path} onClick={() => setOpen(false)} className="py-2 px-3 rounded-md font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
+                    {label}
+                  </Link>
+                );
+              })}
+
+              <div className="mt-4">
+                {currentUser ? (
+                  <div className="flex items-center gap-3">
+                    <span className="font-semibold text-gray-700 dark:text-gray-200">{currentUser.name}</span>
+                    <button onClick={() => { handleLogout(); setOpen(false); }} className="ml-auto bg-red-500 text-white px-3 py-1 rounded-full">Logout</button>
+                  </div>
+                ) : (
+                  <Link to="/login" onClick={() => setOpen(false)} className="block bg-purple-500 text-white px-3 py-2 rounded-md text-center">Login</Link>
+                )}
+              </div>
+            </nav>
+          </div>
+        </div>
+      )}
     </header>
   );
 };
