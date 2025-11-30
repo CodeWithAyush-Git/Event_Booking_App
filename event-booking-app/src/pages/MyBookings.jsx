@@ -84,7 +84,7 @@ const MyBookings = ({ currentUser, bookings = [], cancelBooking }) => {
               >
                 <div className="flex flex-col md:flex-row">
                   {/* Image */}
-                  <div className="md:w-1/4 h-48 md:h-auto overflow-hidden">
+                    <div className="md:w-1/4 h-48 md:h-auto overflow-hidden">
                     <img
                       src={booking.eventImage}
                       alt={booking.eventTitle}
@@ -93,7 +93,7 @@ const MyBookings = ({ currentUser, bookings = [], cancelBooking }) => {
                   </div>
 
                   {/* Details */}
-                  <div className="flex-1 p-6">
+                    <div className="flex-1 p-4 md:p-6">
                     <div className="flex justify-between items-start mb-4">
                       <div>
                         <h3 className="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-2">

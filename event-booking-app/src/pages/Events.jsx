@@ -129,11 +129,11 @@ const Events = ({ events, addBooking, currentUser }) => {
                 className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden transform transition duration-300 hover:scale-105 hover:shadow-2xl"
               >
                 {/* Image Section */}
-                <div className="relative overflow-hidden h-48">
+                <div className="relative overflow-hidden h-40 md:h-48">
                   <img
                     src={event.image}
                     alt={event.title}
-                    className="w-full h-full object-cover transition duration-300 hover:scale-110"
+                      className="w-full h-full object-cover transition duration-300 hover:scale-110"
                   />
                   {event.price && (
                     <div className="absolute top-4 right-4 bg-purple-600 text-white px-3 py-1 rounded-full font-bold text-sm">
@@ -143,7 +143,7 @@ const Events = ({ events, addBooking, currentUser }) => {
                 </div>
 
                 {/* Content Section */}
-                <div className="p-6">
+                <div className="p-4 md:p-6">
                   <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-2">
                     {event.title}
                   </h2>
