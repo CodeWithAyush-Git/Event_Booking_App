@@ -1,100 +1,169 @@
-import React from "react";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-const Events = ({ events, addBooking }) => {
-  // Defensive check: ensure events is an array
-  if (!Array.isArray(events) || events.length === 0) {
-    return (
-      <div className="min-h-screen p-10 bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900">
-        <h1 className="text-4xl font-bold text-center text-purple-700 dark:text-purple-300 mb-10">
-          Upcoming Events
-        </h1>
-        <div className="text-center text-gray-600 dark:text-gray-400 py-20">
-          <p className="text-xl">No events available</p>
-        </div>
-      </div>
-    );
-  }
+const Events = ({ events, addBooking, currentUser }) => {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterCategory, setFilterCategory] = useState("All");
+  const [priceRange, setPriceRange] = useState(1000);
+  const navigate = useNavigate();
+
+  // Filter events based on search and filters
+  const filteredEvents = events.filter(event => {
+    const matchesSearch = event.title.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesPrice = event.price <= priceRange;
+    const matchesCategory = filterCategory === "All" || event.category === filterCategory;
+    return matchesSearch && matchesPrice && matchesCategory;
+  });
 
   const handleBooking = (event) => {
+    if (!currentUser) {
+      navigate("/login");
+      return;
+    }
     addBooking(event);
-    alert(`✅ ${event?.title} added to your bookings!`);
   };
 
   return (
-    <div className="min-h-screen p-10 bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900">
-      {/* Header */}
-      <div className="text-center mb-12">
-        <h1 className="text-5xl font-bold text-purple-700 dark:text-purple-300 mb-4">
-          Upcoming Events
-        </h1>
-        <p className="text-gray-600 dark:text-gray-400 text-lg">
-          Discover and book amazing events near you
-        </p>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 py-10">
+      <div className="max-w-7xl mx-auto px-4">
+        {/* Header */}
+        <div className="text-center mb-12">
+          <h1 className="text-5xl font-bold text-purple-700 dark:text-purple-300 mb-4">
+            Upcoming Events
+          </h1>
+          <p className="text-gray-600 dark:text-gray-400 text-lg">
+            Discover and book amazing events near you
+          </p>
+        </div>
 
-      {/* Events Grid - Shows ALL events (no slice) */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {events.map((event) => (
-          <div
-            key={event.id}
-            className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden transform transition duration-300 hover:scale-105 hover:shadow-2xl"
-          >
-            {/* Image Section */}
-            <div className="relative overflow-hidden h-48">
-              <img
-                src={event.image}
-                alt={event.title}
-                className="w-full h-full object-cover transition duration-300 hover:scale-110"
+        {/* Search & Filter Section */}
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 mb-12">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Search */}
+            <div>
+              <label className="block text-gray-700 dark:text-gray-300 font-semibold mb-2">
+                🔍 Search Events
+              </label>
+              <input
+                type="text"
+                placeholder="Search by event name..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
               />
-              {event.price && (
-                <div className="absolute top-4 right-4 bg-purple-600 text-white px-3 py-1 rounded-full font-bold text-sm">
-                  ₹{event.price}
-                </div>
-              )}
             </div>
 
-            {/* Content Section */}
-            <div className="p-6">
-              <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-2">
-                {event.title}
-              </h2>
+            {/* Price Filter */}
+            <div>
+              <label className="block text-gray-700 dark:text-gray-300 font-semibold mb-2">
+                💰 Max Price: ₹{priceRange}
+              </label>
+              <input
+                type="range"
+                min="0"
+                max="1000"
+                value={priceRange}
+                onChange={(e) => setPriceRange(Number(e.target.value))}
+                className="w-full h-2 bg-gray-300 dark:bg-gray-600 rounded-lg appearance-none cursor-pointer accent-purple-600"
+              />
+            </div>
 
-              {/* Event Details */}
-              <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400 mb-4">
-                {event.date && (
-                  <p className="flex items-center">
-                    📅 {event.date}
-                  </p>
-                )}
-                {event.time && (
-                  <p className="flex items-center">
-                    🕐 {event.time}
-                  </p>
-                )}
-                {event.location && (
-                  <p className="flex items-center">
-                    📍 {event.location}
-                  </p>
-                )}
-              </div>
-
-              {/* Description */}
-              {event.description && (
-                <p className="text-gray-700 dark:text-gray-300 text-sm mb-4 line-clamp-2">
-                  {event.description}
-                </p>
-              )}
-
-              {/* Book Now Button */}
-              <button
-                onClick={() => handleBooking(event)}
-                className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded-xl transition shadow-md"
+            {/* Category Filter */}
+            <div>
+              <label className="block text-gray-700 dark:text-gray-300 font-semibold mb-2">
+                🎭 Category
+              </label>
+              <select
+                value={filterCategory}
+                onChange={(e) => setFilterCategory(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
               >
-                Book Now
-              </button>
+                <option value="All">All Categories</option>
+                <option value="Music">🎵 Music</option>
+                <option value="Art">🎨 Art</option>
+                <option value="Tech">💻 Tech</option>
+              </select>
             </div>
           </div>
-        ))}
+
+          {/* Results Count */}
+          <p className="text-gray-600 dark:text-gray-400 text-sm mt-4">
+            Found {filteredEvents.length} event(s)
+          </p>
+        </div>
+
+        {/* Events Grid */}
+        {filteredEvents.length === 0 ? (
+          <div className="text-center py-20">
+            <p className="text-xl text-gray-600 dark:text-gray-400">
+              No events match your search criteria. Try adjusting filters!
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {filteredEvents.map((event) => (
+              <div
+                key={event.id}
+                className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden transform transition duration-300 hover:scale-105 hover:shadow-2xl"
+              >
+                {/* Image Section */}
+                <div className="relative overflow-hidden h-48">
+                  <img
+                    src={event.image}
+                    alt={event.title}
+                    className="w-full h-full object-cover transition duration-300 hover:scale-110"
+                  />
+                  {event.price && (
+                    <div className="absolute top-4 right-4 bg-purple-600 text-white px-3 py-1 rounded-full font-bold text-sm">
+                      ₹{event.price}
+                    </div>
+                  )}
+                </div>
+
+                {/* Content Section */}
+                <div className="p-6">
+                  <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-2">
+                    {event.title}
+                  </h2>
+
+                  {/* Event Details */}
+                  <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400 mb-4">
+                    {event.date && (
+                      <p className="flex items-center">
+                        📅 {event.date}
+                      </p>
+                    )}
+                    {event.time && (
+                      <p className="flex items-center">
+                        🕐 {event.time}
+                      </p>
+                    )}
+                    {event.location && (
+                      <p className="flex items-center">
+                        📍 {event.location}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Description */}
+                  {event.description && (
+                    <p className="text-gray-700 dark:text-gray-300 text-sm mb-4 line-clamp-2">
+                      {event.description}
+                    </p>
+                  )}
+
+                  {/* Book Now Button */}
+                  <button
+                    onClick={() => handleBooking(event)}
+                    className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded-xl transition shadow-md"
+                  >
+                    {currentUser ? "Book Now" : "Login to Book"}
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

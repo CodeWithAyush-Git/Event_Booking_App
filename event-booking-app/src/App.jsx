@@ -16,14 +16,53 @@ import "./App.css";
 
 function App() {
   const [currentUser, setCurrentUser] = useState(null);
+  const [userBookings, setUserBookings] = useState([]);
+
+  const addBooking = (event) => {
+    if (!currentUser) {
+      alert("Please login first to book an event!");
+      return;
+    }
+
+    const newBooking = {
+      id: Date.now(),
+      eventId: event.id,
+      eventTitle: event.title,
+      eventDate: event.date,
+      eventImage: event.image,
+      userId: currentUser.id,
+      bookingDate: new Date().toLocaleDateString(),
+      status: "Confirmed",
+      price: event.price || 0,
+    };
+
+    setUserBookings([...userBookings, newBooking]);
+    alert(`✅ Successfully booked ${event.title}!`);
+  };
+
+  const cancelBooking = (bookingId) => {
+    setUserBookings(
+      userBookings.map(booking =>
+        booking.id === bookingId
+          ? { ...booking, status: "Cancelled" }
+          : booking
+      )
+    );
+  };
 
   return (
     <Router>
       <Header currentUser={currentUser} setCurrentUser={setCurrentUser} />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/events" element={<Events events={events} addBooking={() => {}} />} />
-        <Route path="/my-bookings" element={<MyBookings currentUser={currentUser} />} />
+        <Route 
+          path="/events" 
+          element={<Events events={events} addBooking={addBooking} currentUser={currentUser} />} 
+        />
+        <Route 
+          path="/my-bookings" 
+          element={<MyBookings currentUser={currentUser} bookings={userBookings} cancelBooking={cancelBooking} />} 
+        />
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/login" element={<Login setCurrentUser={setCurrentUser} />} />
