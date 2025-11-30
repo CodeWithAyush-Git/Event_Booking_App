@@ -45,10 +45,6 @@ const Home = () => {
     { name: "Tech", icon: Code, color: "blue", count: 2 },
   ];
 
-  const topReviews = getAllReviews()
-    .sort((a, b) => b.rating - a.rating)
-    .slice(0, 3);
-
   return (
     <div className="relative min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-700 overflow-hidden">
 
@@ -173,33 +169,6 @@ const Home = () => {
               <p className="text-gray-600 dark:text-gray-300">Guaranteed lowest prices on all events. No hidden charges.</p>
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* Testimonials/Top Reviews Section */}
-      <section className="max-w-7xl mx-auto px-4 py-16">
-        <h2 className="text-4xl font-bold text-purple-700 dark:text-purple-400 mb-12 text-center">What People Love</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {topReviews.length > 0 ? (
-            topReviews.map((review, idx) => (
-              <div key={idx} className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md border-l-4 border-yellow-400">
-                <div className="flex items-center mb-4">
-                  <div className="flex text-yellow-400">
-                    {[...Array(5)].map((_, i) => (
-                      <Star
-                        key={i}
-                        className={`w-5 h-5 ${i < review.rating ? "fill-yellow-400" : "text-gray-300"}`}
-                      />
-                    ))}
-                  </div>
-                </div>
-                <p className="text-gray-700 dark:text-gray-300 mb-4 italic">"{review.comment}"</p>
-                <p className="text-gray-500 dark:text-gray-400 font-semibold">— {review.userName}</p>
-              </div>
-            ))
-          ) : (
-            <p className="text-center text-gray-500 dark:text-gray-400 col-span-3">No reviews yet. Book an event and share your experience!</p>
-          )}
         </div>
       </section>
 
