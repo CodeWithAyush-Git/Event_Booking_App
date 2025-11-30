@@ -1,9 +1,12 @@
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import DarkModeToggle from "./DarkModeToggle";
 
 const Header = ({ currentUser, setCurrentUser }) => {
   const [open, setOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const drawerRef = useRef(null);
+  const previousActiveElement = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -13,6 +16,55 @@ const Header = ({ currentUser, setCurrentUser }) => {
   };
 
   const isActive = (path) => location.pathname === path;
+
+  // Manage focus trap and slide-in animation for mobile drawer
+  useEffect(() => {
+    if (!open) {
+      setMounted(false);
+      return;
+    }
+
+    // open === true
+    previousActiveElement.current = document.activeElement;
+    // mount then animate on next frame
+    setMounted(false);
+    requestAnimationFrame(() => setMounted(true));
+
+    const drawerNode = drawerRef.current;
+    const focusableSelector = 'a, button, input, textarea, select, [tabindex]:not([tabindex="-1"])';
+    const focusable = drawerNode ? Array.from(drawerNode.querySelectorAll(focusableSelector)).filter(el => !el.hasAttribute('disabled')) : [];
+    if (focusable.length) focusable[0].focus();
+
+    const onKey = (e) => {
+      if (e.key === 'Escape') {
+        setOpen(false);
+      }
+
+      if (e.key === 'Tab' && focusable.length) {
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (e.shiftKey) {
+          if (document.activeElement === first) {
+            e.preventDefault();
+            last.focus();
+          }
+        } else {
+          if (document.activeElement === last) {
+            e.preventDefault();
+            first.focus();
+          }
+        }
+      }
+    };
+
+    document.addEventListener('keydown', onKey);
+
+    return () => {
+      document.removeEventListener('keydown', onKey);
+      // restore focus
+      try { previousActiveElement.current?.focus(); } catch (e) {}
+    };
+  }, [open]);
 
   return (
     <header className="sticky top-0 z-50 bg-white/80 dark:bg-gray-800 backdrop-blur-md shadow-md transition-colors duration-500">
@@ -98,7 +150,14 @@ const Header = ({ currentUser, setCurrentUser }) => {
       {/* Mobile Drawer */}
       {open && (
         <div className="md:hidden fixed inset-0 z-50 bg-black/40" onClick={() => setOpen(false)}>
-          <div className="absolute right-0 top-0 w-64 h-full bg-white dark:bg-gray-800 shadow-xl p-6" onClick={(e) => e.stopPropagation()}>
+          <div
+            ref={drawerRef}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Main menu"
+            className={`absolute right-0 top-0 w-64 h-full bg-white dark:bg-gray-800 shadow-xl p-6 transform ${mounted ? 'translate-x-0' : 'translate-x-full'} transition-transform duration-300`} 
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex justify-between items-center mb-6">
               <Link to="/" className="text-xl font-bold text-purple-600 dark:text-purple-400">EventBooking</Link>
               <button onClick={() => setOpen(false)} className="text-gray-600 dark:text-gray-200">Close</button>
