@@ -23,12 +23,14 @@ const Header = ({ currentUser, setCurrentUser }) => {
         </Link>
 
         <nav className="flex gap-4 md:gap-6 items-center">
-          {["/", "/events", "/my-bookings", "/admin", "/contact", "/about"].map((path) => {
+          {["/", "/events", "/my-bookings", "/profile", "/admin", "/contact", "/about"].map((path) => {
             if (path === "/admin" && currentUser?.role !== "admin") return null;
+            if (path === "/profile" && !currentUser) return null;
             const label =
               path === "/" ? "Home" :
               path === "/events" ? "Events" :
               path === "/my-bookings" ? "My Bookings" :
+              path === "/profile" ? "Profile" :
               path === "/admin" ? "Admin" :
               path === "/contact" ? "Contact" :
               "About";

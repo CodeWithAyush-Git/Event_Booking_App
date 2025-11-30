@@ -8,6 +8,7 @@ import About from "./pages/About";
 import Contact from "./pages/Contact";
 import Admin from "./pages/Admin";
 import Login from "./pages/Login";
+import Profile from "./pages/Profile";
 import ThankYou from "./pages/ThankYou";
 import Footer from "./components/Footer";
 import { events } from "./data/events";
@@ -87,6 +88,10 @@ function App() {
         <Route 
           path="/my-bookings" 
           element={<MyBookings currentUser={currentUser} bookings={userBookings} cancelBooking={cancelBooking} />} 
+        />
+        <Route 
+          path="/profile" 
+          element={<Profile currentUser={currentUser} setCurrentUser={setCurrentUser} />} 
         />
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
