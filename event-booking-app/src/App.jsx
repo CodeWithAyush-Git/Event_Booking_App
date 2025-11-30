@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Header from "./components/Header";
 import Home from "./pages/Home";
@@ -17,7 +17,14 @@ import "./App.css";
 
 function App() {
   const [currentUser, setCurrentUser] = useState(null);
-  const [userBookings, setUserBookings] = useState([]);
+  const [userBookings, setUserBookings] = useState(() => {
+    try {
+      const raw = localStorage.getItem("event_app_bookings");
+      return raw ? JSON.parse(raw) : [];
+    } catch (e) {
+      return [];
+    }
+  });
 
   const addBooking = (event) => {
     if (!currentUser) {
@@ -37,7 +44,11 @@ function App() {
       price: event.price || 0,
     };
 
-    setUserBookings([...userBookings, newBooking]);
+    setUserBookings(prev => {
+      const next = [...prev, newBooking];
+      try { localStorage.setItem("event_app_bookings", JSON.stringify(next)); } catch (e) {}
+      return next;
+    });
     alert(`✅ Successfully booked ${event.title}!`);
     // send confirmation email (stub)
     if (currentUser && currentUser.email) {
@@ -50,14 +61,19 @@ function App() {
   };
 
   const cancelBooking = (bookingId) => {
-    setUserBookings(
-      userBookings.map(booking =>
-        booking.id === bookingId
-          ? { ...booking, status: "Cancelled" }
-          : booking
-      )
-    );
+    setUserBookings(prev => {
+      const next = prev.map(booking =>
+        booking.id === bookingId ? { ...booking, status: "Cancelled" } : booking
+      );
+      try { localStorage.setItem("event_app_bookings", JSON.stringify(next)); } catch (e) {}
+      return next;
+    });
   };
+
+  // keep localStorage in sync if userBookings changed elsewhere
+  useEffect(() => {
+    try { localStorage.setItem("event_app_bookings", JSON.stringify(userBookings)); } catch (e) {}
+  }, [userBookings]);
 
   return (
     <Router>
