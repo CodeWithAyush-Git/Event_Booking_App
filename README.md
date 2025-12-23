@@ -1,12 +1,47 @@
-# React + Vite
+# Event Booking App
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A React-based event booking application built with Vite, React Router v7, and Tailwind CSS v4. Features user authentication, event browsing, booking management, and admin functionality.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- User registration and login
+- Browse and search events
+- Book events with confirmation
+- Manage personal bookings
+- Admin panel for event management
+- Dark mode toggle
+- Responsive design
 
-## Expanding the ESLint configuration
+## Tech Stack
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- **Frontend**: React 19.1, React Router v7
+- **Styling**: Tailwind CSS v4
+- **Build Tool**: Vite
+- **Icons**: Lucide React, React Icons
+- **Forms**: React Hook Form with Yup validation
+- **Animations**: Framer Motion
+
+## Getting Started
+
+1. Clone the repository
+2. Install dependencies: `npm install`
+3. Start development server: `npm run dev`
+4. Build for production: `npm run build`
+
+## Scripts
+
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run lint` - Run ESLint
+- `npm run preview` - Preview production build
+
+## Project Structure
+
+```
+src/
+├── components/     # Reusable UI components
+├── pages/         # Route components
+├── data/          # Mock data files
+├── styles/        # Additional styles
+└── utils/         # Utility functions
+```
